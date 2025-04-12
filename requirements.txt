@@ -3,3 +3,4 @@ uvicorn
 Jinja2
 python-multipart
 starlette
+requests
