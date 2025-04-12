@@ -7,17 +7,6 @@ from starlette.requests import Request
 # Inicializiraj aplikacijo
 app = FastAPI()
 
-# Nastavi template direktorij za Jinja2
-templates = Jinja2Templates(directory="templates")
-
-# Nastavi statične datoteke (CSS, slike, js)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
-    # Ustvari HTML stran z uporabo Jinja2 template
-    return templates.TemplateResponse("templates/index.html", {"request": request})
-
 image_url="https://media.cnn.com/api/v1/images/stellar/prod/150929101049-black-coffee-stock.jpg?q=w_3000,h_3074,x_0,y_0,c_fill"
 
 from fastapi import FastAPI, Query
