@@ -41,3 +41,8 @@ def download_image(image_url: str = Query(...)):  # Expecting image_url as a que
         return result.stdout  # Return the output from the script
     else:
         return result.stderr  # Return any errors if the script fails
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
