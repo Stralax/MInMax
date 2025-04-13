@@ -267,6 +267,6 @@ def detect_and_interpret(image_path, model_path="char_symbol_cnn.pt"):
 
 # ==== Run Combined Script ====
 if __name__ == "__main__":
-    input_image = "kafe_test.jpg"
+    input_image = "../images/kafe_test.jpg"
     preprocess_and_stitch(input_image)
     detect_and_interpret("stitched_output.jpg")
