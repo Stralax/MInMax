@@ -1,0 +1,47 @@
+[
+    {
+        "character": ":",
+        "meaning": "good luck",
+        "zone": "past"
+    },
+    {
+        "character": "F",
+        "meaning": "friendship",
+        "zone": "past"
+    },
+    {
+        "character": "I",
+        "meaning": "surprise",
+        "zone": "present"
+    },
+    {
+        "character": "L",
+        "meaning": "lies",
+        "zone": "past"
+    },
+    {
+        "character": "M",
+        "meaning": "healing",
+        "zone": "past"
+    },
+    {
+        "character": "P",
+        "meaning": "pregnancy",
+        "zone": "present"
+    },
+    {
+        "character": "R",
+        "meaning": "relief",
+        "zone": "present"
+    },
+    {
+        "character": "U",
+        "meaning": "material desire",
+        "zone": "past"
+    },
+    {
+        "character": "W",
+        "meaning": "spiritual warning",
+        "zone": "past"
+    }
+]

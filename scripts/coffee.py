@@ -2,8 +2,10 @@ import os
 import sys
 import cv2
 import math
+import json
 import torch
 import random
+import requests
 import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
@@ -292,18 +294,77 @@ def detect_and_interpret(image_path, model_path="char_symbol_cnn.pt"):
         cv2.putText(drawn_image, char, (cx + 15, cy - 15),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
 
-    cv2.imwrite("sonja_result.jpg", cv2.cvtColor(drawn_image, cv2.COLOR_RGB2BGR))
+    cv2.imwrite("result_image.jpg", cv2.cvtColor(drawn_image, cv2.COLOR_RGB2BGR))
 
-    print("\n🔮 Fortune Telling Result:\n")
+    output_data = []
     for char, (meaning, zone) in sorted(results.items()):
-        print(f"'{char}' : ({meaning}, {zone})")
+        output_data.append({
+            "character": char,
+            "meaning": meaning,
+            "zone": zone
+        })
+
+    with open("fortune_results.json", "w") as f:
+        json.dump(output_data, f, indent=4)
+
+    #print("\n🔮 Fortune Telling Result:\n")
+    for entry in output_data:
+        print(f"'{entry['character']}' : ({entry['meaning']}, {entry['zone']})")
+
+    # print("\n🔮 Fortune Telling Result:\n")
+    # for char, (meaning, zone) in sorted(results.items()):
+    #     print(f"'{char}' : ({meaning}, {zone})")
 
 
-# ==== Run Combined Script ====
+# === Continue with imgbb upload and final result saving ===
+def upload_image_to_imgbb(image_path, api_key='63db8ca1d56f9c50ecbcee756b05f668', expiration=600):
+    url = "https://api.imgbb.com/1/upload"
+    with open(image_path, "rb") as file:
+        payload = {
+            "key": api_key,
+            "expiration": str(expiration)
+        }
+        files = {
+            "image": file
+        }
+        try:
+            response = requests.post(url, data=payload, files=files)
+            data = response.json()
+            if data.get("success"):
+                print("✅ Image uploaded:", data["data"]["url"])
+                return data["data"]["url"]
+            else:
+                print("❌ Upload failed:", data)
+                return None
+        except Exception as e:
+            print("❌ Error uploading image:", str(e))
+            return None
+
+# ==== Final main logic ====
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python script.py <image_path>")
         sys.exit(1)
+
     input_image = sys.argv[1]
     preprocess_and_stitch(input_image)
     detect_and_interpret("stitched_output.jpg")
+
+    # Upload result image
+    image_link = upload_image_to_imgbb("result_image.jpg")
+
+    # Load fortune results
+    with open("fortune_results.json", "r") as f:
+        results_json = json.load(f)
+
+    # Combine and save to final output
+    final_output = {
+        "image_link": image_link,
+        "results": results_json
+    }
+
+    with open("final_output.json", "w") as f:
+        json.dump(final_output, f, indent=4)
+
+    print("\n✅ Final output saved to final_output.json")
+    print(f"🔗 Link: {image_link}")
