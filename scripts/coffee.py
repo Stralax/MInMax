@@ -22,7 +22,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "MiDaS"))
 from midas.dpt_depth import DPTDepthModel
 
 def load_midas_model():
-    model_path = "models/dpt_large-midas-2f21e586.pt"
+    model_path = "scripts/models/dpt_large-midas-2f21e586.pt"
     midas = DPTDepthModel(path=model_path, backbone="vitl16_384", non_negative=True)
     midas.eval()
     transform = transforms.Compose([
@@ -214,7 +214,7 @@ def map_position_to_zone(x, y, image_shape, part="wall"):
         elif 225 <= angle_deg < 315: return "present"
         else: return "love"
 
-def load_model(path="char_symbol_cnn.pt"):
+def load_model(path="scripts/char_symbol_cnn.pt"):
     checkpoint = torch.load(path, map_location="cpu")
     class_names = checkpoint["class_names"]
     model = SimpleCharCNN(num_classes=len(class_names))
@@ -235,7 +235,7 @@ def predict_char(patch, model, class_names):
         pred = torch.argmax(logits, dim=1).item()
     return class_names[pred]
 
-def detect_and_interpret(image_path, model_path="char_symbol_cnn.pt"):
+def detect_and_interpret(image_path, model_path="scripts/char_symbol_cnn.pt"):
     model, class_names = load_model(model_path)
     image = cv2.imread(image_path)
     if image is None:
@@ -309,13 +309,11 @@ def detect_and_interpret(image_path, model_path="char_symbol_cnn.pt"):
     with open("fortune_results.json", "w") as f:
         json.dump(output_data, f, indent=4)
 
-    #print("\n🔮 Fortune Telling Result:\n")
+   
     for entry in output_data:
         print(f"'{entry['character']}' : ({entry['meaning']}, {entry['zone']})")
 
-    # print("\n🔮 Fortune Telling Result:\n")
-    # for char, (meaning, zone) in sorted(results.items()):
-    #     print(f"'{char}' : ({meaning}, {zone})")
+
 
 
 # === Continue with imgbb upload and final result saving ===
@@ -333,13 +331,13 @@ def upload_image_to_imgbb(image_path, api_key='63db8ca1d56f9c50ecbcee756b05f668'
             response = requests.post(url, data=payload, files=files)
             data = response.json()
             if data.get("success"):
-                print("✅ Image uploaded:", data["data"]["url"])
+                print("Image uploaded:", data["data"]["url"])
                 return data["data"]["url"]
             else:
-                print("❌ Upload failed:", data)
+                print("Upload failed:", data)
                 return None
         except Exception as e:
-            print("❌ Error uploading image:", str(e))
+            print("Error uploading image:", str(e))
             return None
 
 # ==== Final main logic ====
