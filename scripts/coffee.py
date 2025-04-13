@@ -298,8 +298,12 @@ def detect_and_interpret(image_path, model_path="char_symbol_cnn.pt"):
     for char, (meaning, zone) in sorted(results.items()):
         print(f"'{char}' : ({meaning}, {zone})")
 
+
 # ==== Run Combined Script ====
 if __name__ == "__main__":
-    input_image = "../images/kafe_test.jpg"
+    if len(sys.argv) < 2:
+        print("Usage: python script.py <image_path>")
+        sys.exit(1)
+    input_image = sys.argv[1]
     preprocess_and_stitch(input_image)
     detect_and_interpret("stitched_output.jpg")
