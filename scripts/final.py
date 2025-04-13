@@ -263,7 +263,7 @@ def detect_and_interpret(image_path, model_path="char_symbol_cnn.pt"):
     cv2.imwrite("sonja_result.jpg", cv2.cvtColor(drawn_image, cv2.COLOR_RGB2BGR))
     print("\n🔮 Fortune Telling Result:\n")
     for char, (meaning, zone) in sorted(results.items()):
-        print(f"'{char}' : ({meaning}, {zone})")
+        print(f"'{char}' → ({meaning}, {zone})")
 
 # ==== Run Combined Script ====
 if __name__ == "__main__":
