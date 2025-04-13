@@ -351,16 +351,20 @@ if __name__ == "__main__":
     image_url = sys.argv[1]
     temp_input_path = "temp_input.jpg"
 
+    response = requests.get(image_url)
+    img = Image.open(BytesIO(response.content))
+    img.save("temp_input.jpg")
+
     try:
         # Download image and save locally
-        img_response = requests.get(image_url, stream=True)
-        img_response.raise_for_status()
+        # img_response = requests.get(image_url, stream=True)
+        # img_response.raise_for_status()
 
-        with open(temp_input_path, 'wb') as f:
-            for chunk in img_response.iter_content(1024):
-                f.write(chunk)
+        # with open(temp_input_path, 'wb') as f:
+        #     for chunk in img.iter_content(1024):
+        #         f.write(chunk)
 
-        preprocess_and_stitch(temp_input_path)
+        preprocess_and_stitch("temp_input.jpg")
         detect_and_interpret("stitched_output.jpg")
 
         # Upload result image
@@ -379,8 +383,8 @@ if __name__ == "__main__":
         with open("final_output.json", "w") as f:
             json.dump(final_output, f, indent=4)
 
-        print("\n✅ Final output saved to final_output.json")
-        print(f"🔗 Link: {image_link}")
+        print("\Final output saved to final_output.json")
+        print(f"Link: {image_link}")
 
     except Exception as e:
-        print(f"❌ Failed to process image from URL: {e}")
+        print(f"Failed to process image from URL: {e}")
