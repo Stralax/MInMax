@@ -12,6 +12,8 @@ import torchvision.transforms as transforms
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="timm.models.layers")
 
+from io import BytesIO
+
 # ===============================
 # == MiDaS Depth + Preprocessing
 # ===============================
@@ -343,28 +345,39 @@ def upload_image_to_imgbb(image_path, api_key='63db8ca1d56f9c50ecbcee756b05f668'
 # ==== Final main logic ====
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python script.py <image_path>")
+        print("Usage: python script.py <image_url>")
         sys.exit(1)
 
-    input_image = sys.argv[1]
-    preprocess_and_stitch(input_image)
-    detect_and_interpret("stitched_output.jpg")
+    image_url = sys.argv[1]
 
-    # Upload result image
-    image_link = upload_image_to_imgbb("result_image.jpg")
+    try:
+        response = requests.get(image_url)
+        response.raise_for_status()
+        image = Image.open(BytesIO(response.content)).convert("RGB")
+        temp_input_path = "temp_input.jpg"
+        image.save(temp_input_path)
 
-    # Load fortune results
-    with open("fortune_results.json", "r") as f:
-        results_json = json.load(f)
+        preprocess_and_stitch(temp_input_path)
+        detect_and_interpret("stitched_output.jpg")
 
-    # Combine and save to final output
-    final_output = {
-        "image_link": image_link,
-        "results": results_json
-    }
+        # Upload result image
+        image_link = upload_image_to_imgbb("result_image.jpg")
 
-    with open("final_output.json", "w") as f:
-        json.dump(final_output, f, indent=4)
+        # Load fortune results
+        with open("fortune_results.json", "r") as f:
+            results_json = json.load(f)
 
-    print("\n✅ Final output saved to final_output.json")
-    print(f"🔗 Link: {image_link}")
+        # Combine and save to final output
+        final_output = {
+            "image_link": image_link,
+            "results": results_json
+        }
+
+        with open("final_output.json", "w") as f:
+            json.dump(final_output, f, indent=4)
+
+        print("\n✅ Final output saved to final_output.json")
+        print(f"🔗 Link: {image_link}")
+
+    except Exception as e:
+        print(f"❌ Failed to process image from URL: {e}")
