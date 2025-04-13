@@ -193,7 +193,7 @@ CHAR_MEANINGS = {
     "D": "home", "E": "unexpected news", "F": "friendship", "G": "joy", "H": "pride", "I": "surprise",
     "J": "love", "K": "expansion", "L": "lies", "M": "healing", "N": "rejection", "O": "success",
     "P": "pregnancy", "Q": "success with children", "R": "relief", "S": "happiness", "T": "timeliness",
-    "U": "material desire", "V": "victory", "W": "spiritual warning", "X": "crossroads",
+    "U": "material desire", "V": "victory", "W": "WIN", "X": "crossroads",
     "Y": "Crossroads, options in decisions, or help coming from a friend", "Z": "ending",
     "!": "danger or excitement", "?": "concern", ":": "good luck",
     "0": "Things repeating themselves", "1": "Start of something new", "2": "Choice", "3": "meeting",
