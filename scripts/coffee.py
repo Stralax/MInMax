@@ -1,7 +1,9 @@
 import os
 import sys
 import cv2
+import math
 import torch
+import random
 import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
@@ -241,26 +243,57 @@ def detect_and_interpret(image_path, model_path="char_symbol_cnn.pt"):
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     h, w = image.shape[:2]
     results = {}
+    positions = {}
     drawn_image = image_rgb.copy()
     count_valid = 0
+
     for cnt in contours:
         x, y, bw, bh = cv2.boundingRect(cnt)
         if 10 <= bw <= 60 and 10 <= bh <= 60:
             patch = image_rgb[y:y+bh, x:x+bw]
             cx, cy = x + bw // 2, y + bh // 2
             try:
-                char = predict_char(patch, model, class_names)
-                meaning = CHAR_MEANINGS.get(char.upper(), "unknown")
+                char = predict_char(patch, model, class_names).upper()
+                meaning = CHAR_MEANINGS.get(char, "unknown")
                 zone = map_position_to_zone(cx, cy, (h, w), part="wall")
-                cv2.circle(drawn_image, (cx, cy), 8, (255, 0, 0), 2)
                 results[char] = (meaning, zone)
+                if char not in positions:
+                    positions[char] = (cx, cy)
                 count_valid += 1
             except:
                 continue
+
     if count_valid == 0:
         print("Bad image quality. Try taking image with better lighting or better angle!")
         sys.exit(1)
+
+    # Filter to ensure selected characters are far apart
+    def is_far_enough(candidate_pos, chosen_positions, min_dist=50):
+        for pos in chosen_positions:
+            dist = math.hypot(candidate_pos[0] - pos[0], candidate_pos[1] - pos[1])
+            if dist < min_dist:
+                return False
+        return True
+
+    candidates = list(positions.items())
+    random.shuffle(candidates)
+    chosen = []
+    chosen_positions = []
+
+    for char, (cx, cy) in candidates:
+        if is_far_enough((cx, cy), chosen_positions, min_dist=50):
+            chosen.append((char, (cx, cy)))
+            chosen_positions.append((cx, cy))
+        if len(chosen) >= 6:
+            break
+
+    for char, (cx, cy) in chosen:
+        cv2.circle(drawn_image, (cx, cy), 14, (255, 0, 0), 2)
+        cv2.putText(drawn_image, char, (cx + 15, cy - 15),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
+
     cv2.imwrite("sonja_result.jpg", cv2.cvtColor(drawn_image, cv2.COLOR_RGB2BGR))
+
     print("\n🔮 Fortune Telling Result:\n")
     for char, (meaning, zone) in sorted(results.items()):
         print(f"'{char}' : ({meaning}, {zone})")
