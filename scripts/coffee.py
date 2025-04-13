@@ -349,13 +349,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     image_url = sys.argv[1]
+    temp_input_path = "temp_input.jpg"
 
     try:
-        response = requests.get(image_url)
-        response.raise_for_status()
-        image = Image.open(BytesIO(response.content)).convert("RGB")
-        temp_input_path = "temp_input.jpg"
-        image.save(temp_input_path)
+        # Download image and save locally
+        img_response = requests.get(image_url, stream=True)
+        img_response.raise_for_status()
+
+        with open(temp_input_path, 'wb') as f:
+            for chunk in img_response.iter_content(1024):
+                f.write(chunk)
 
         preprocess_and_stitch(temp_input_path)
         detect_and_interpret("stitched_output.jpg")
